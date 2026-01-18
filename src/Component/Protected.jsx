@@ -10,12 +10,12 @@ function Protected({ children, role }) {
     const checkAuth = async () => {
       try {
         const API_URL = import.meta.env.VITE_API_URL; // ✅ use env variable
-        const res = await axios.get(`${API_URL}/checkauth`, {
+        const res = await axios.get(`${API_URL}/checkAuth`, {
           withCredentials: true,
         });
 
         // backend returns { message, user: { role, ... } }
-        setUser(res.data.user);
+        setUser({ role: res.data.role });
       } catch (err) {
         setUser(null);
       } finally {

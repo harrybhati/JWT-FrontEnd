@@ -5,16 +5,21 @@ import axios from "axios";
 function PublicRoute({ children }) {
   const [loading, setLoading] = useState(true);
   const [isAuth, setIsAuth] = useState(false);
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get("http://localhost:5000/checkauth", {
+        const API_URL = import.meta.env.VITE_API_URL; // ✅ use env variable
+        const resp = await axios.get(`${API_URL}/checkauth`, {
           withCredentials: true,
         });
-        setIsAuth(true);   // logged in
+
+        setIsAuth(true);
+        setRole(resp.data.user.role); // ✅ store role from backend
       } catch (err) {
-        setIsAuth(false);  // not logged in
+        setIsAuth(false);
+        setRole(null);
       } finally {
         setLoading(false);
       }
@@ -27,6 +32,9 @@ function PublicRoute({ children }) {
 
   // ❌ Already logged in → block login/signup
   if (isAuth) {
+    if (role === "admin") {
+      return <Navigate to="/adm" replace />;
+    }
     return <Navigate to="/normal" replace />;
   }
 

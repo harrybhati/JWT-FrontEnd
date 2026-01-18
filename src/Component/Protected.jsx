@@ -9,11 +9,13 @@ function Protected({ children, role }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/checkAuth", {
+        const API_URL = import.meta.env.VITE_API_URL; // ✅ use env variable
+        const res = await axios.get(`${API_URL}/checkauth`, {
           withCredentials: true,
         });
-        // backend returns { message, role }
-        setUser({ role: res.data.role });
+
+        // backend returns { message, user: { role, ... } }
+        setUser(res.data.user);
       } catch (err) {
         setUser(null);
       } finally {
@@ -33,14 +35,13 @@ function Protected({ children, role }) {
 
   // ❌ Logged in but wrong role
   if (role && user.role !== role) {
-  return (
-    <Navigate
-      to={user.role === "admin" ? "/adm" : "/normal"}
-      replace
-    />
-  );
-}
-
+    return (
+      <Navigate
+        to={user.role === "admin" ? "/adm" : "/normal"}
+        replace
+      />
+    );
+  }
 
   // ✅ Authenticated and allowed
   return children;

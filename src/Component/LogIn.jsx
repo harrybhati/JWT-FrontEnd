@@ -3,31 +3,34 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
 function LogIn() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const navigate = useNavigate();
 
-   async function Hello(data) {
-    console.log("Login data:", data);
-    try{
-      const resp=await axios.post("http://localhost:5000/login",data,{withCredentials:true});
+  async function Hello(data) {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL; // ✅ use env variable
+      const resp = await axios.post(`${API_URL}/login`, data, { withCredentials: true });
+
       console.log("Login response:", resp.data);
-      if(resp.data.user.role==='admin'){
+
+      // Redirect based on role
+      if (resp.data.user.role === "admin") {
         navigate("/adm");
-      }else{
+      } else {
         navigate("/normal");
       }
-    }
-    catch(err){
-      if(err.response?.status===401){
+
+      reset(); // ✅ clear form after success
+    } catch (err) {
+      if (err.response?.status === 401) {
         alert("Invalid credentials, please try again.");
+      } else {
+        alert(err.response?.data?.message || "Login failed");
       }
-     
       console.error("Login error:", err);
-    
     }
   }
 
-  // Inline styles
   const styles = {
     form: {
       background: "#ffffff",
@@ -39,47 +42,10 @@ function LogIn() {
       margin: "3rem auto",
       fontFamily: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif"
     },
-    label: {
-      display: "block",
-      marginBottom: "6px",
-      fontWeight: "600",
-      color: "#333",
-      fontSize: "14px"
-    },
-    input: {
-      width: "100%",
-      padding: "10px 12px",
-      marginBottom: "1rem",
-      border: "1px solid #ccc",
-      borderRadius: "6px",
-      fontSize: "14px",
-      transition: "border-color 0.3s ease",
-    },
-    inputFocus: {
-      borderColor: "#2575fc",
-      outline: "none"
-    },
-    error: {
-      color: "#e63946",
-      fontSize: "13px",
-      marginTop: "-8px",
-      marginBottom: "12px"
-    },
-    button: {
-      width: "100%",
-      padding: "12px",
-      background: "linear-gradient(90deg, #2575fc, #6a11cb)",
-      color: "#fff",
-      fontSize: "16px",
-      fontWeight: "600",
-      border: "none",
-      borderRadius: "6px",
-      cursor: "pointer",
-      transition: "background 0.3s ease"
-    },
-    buttonHover: {
-      background: "linear-gradient(90deg, #6a11cb, #2575fc)"
-    }
+    label: { display: "block", marginBottom: "6px", fontWeight: "600", color: "#333", fontSize: "14px" },
+    input: { width: "100%", padding: "10px 12px", marginBottom: "1rem", border: "1px solid #ccc", borderRadius: "6px", fontSize: "14px" },
+    error: { color: "#e63946", fontSize: "13px", marginTop: "-8px", marginBottom: "12px" },
+    button: { width: "100%", padding: "12px", background: "linear-gradient(90deg, #2575fc, #6a11cb)", color: "#fff", fontSize: "16px", fontWeight: "600", border: "none", borderRadius: "6px", cursor: "pointer" }
   };
 
   return (
@@ -105,7 +71,7 @@ function LogIn() {
       {errors.password && <p style={styles.error}>Password is required</p>}
 
       <button type="submit" style={styles.button}>Submit</button>
-      <p>New User ? <Link to="/">Sign Up</Link></p>
+      <p>New User? <Link to="/">Sign Up</Link></p>
     </form>
   );
 }

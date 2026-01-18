@@ -11,7 +11,7 @@ function PublicRoute({ children }) {
     const checkAuth = async () => {
       try {
         const API_URL = import.meta.env.VITE_API_URL; // ✅ use env variable
-        const resp = await axios.get(`${API_URL}/checkauth`, {
+        const resp = await axios.get(`${API_URL}/checkAuth`, {
           withCredentials: true,
         });
 
